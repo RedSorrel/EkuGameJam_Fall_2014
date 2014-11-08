@@ -73,6 +73,7 @@ Game.prototype = {
         this.player.body.collideWorldBounds = true;
 
         //PLAYER BULLETS/PROJECTILES
+        this.bullets = game.add.group();
         this.bullets = [];
         
 
@@ -131,9 +132,11 @@ Game.prototype = {
 
     fire: function() 
     {
-        
-        this.player.body.velocity.y = -350;
-       
+        var bullet = this.game.add.sprite(this.player.x, this.player.y -20, 'bullet');
+        bullet.anchor.setTo(0.5, 0.5);
+        this.game.physics.arcade.enable(bullet);
+        bullet.body.velocity.x = 500;
+        this.bullets.push(this.bullets);
     }
 
 
