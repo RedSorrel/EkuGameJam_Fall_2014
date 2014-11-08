@@ -8,6 +8,7 @@ Game = function (game) {
    this.borders = null;         //stage cage
    this.cursors = null;         //gonna get key input
    this.mob = null;             //mob thinger
+   this.bullets = null;
 
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
@@ -23,7 +24,10 @@ Game.prototype = {
          this.game.load.image('border_Side', 'assets/border_Side.png');
          this.game.load.spritesheet('player', 'assets/player.png', 48, 48);
          this.game.load.spritesheet('mob', 'assets/mob.png', 94,94);
+         this.game.load.image('bullets', 'assets/bullet.png');
     },
+
+    
 
     create: function () 
     {
@@ -64,17 +68,23 @@ Game.prototype = {
         //create the player obj
         this.player = game.add.sprite(48, game.world.height - 150, 'player');
         this.game.physics.arcade.enable(this.player);
-        this.player.body.gravity.y = 350;
+        this.player.body.gravity.y = 1000;
+        this.player.body.maxVelocity.y = 500;
         this.player.body.collideWorldBounds = true;
+
+        //PLAYER BULLETS/PROJECTILES
+        this.bullets = [];
+        
 
         //MOB*****************************************************************
         this.mob = game.add.sprite(game.world.width-(96*2), game.world.height-(96*2), 'mob');
         this.game.physics.arcade.enable(this.mob);
-        this.mob.body.gravity.y = 350;
+        this.mob.body.gravity.y = 1000;
         this.mob.body.collideWorldBounds = true;
 
 
     },
+
 
     update: function () 
     {
@@ -83,7 +93,7 @@ Game.prototype = {
         //make sure the player will collide with the bounding box
         this.game.physics.arcade.collide(this.player, this.borders);
 
-        //make sure mob will collide with bounding box..maybe if overlap take health from player
+        //make sure mob will collide with bounding box..maybe if overlap take health from
         this.game.physics.arcade.collide(this.mob, this.borders);
 
         //and that player and mob can collide
@@ -91,10 +101,10 @@ Game.prototype = {
 
         //Get player movement
         var pV = 10;                            //velocity of the player, create some slide when we let off the keys
-        if(this.cursors.left.isDown)            //if left arrow is down
+        if(this.cursors.left.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.A))            //if left arrow is down
             this.player.body.velocity.x = -250; //move left
         
-        else if(this.cursors.right.isDown)      //if right arrow is down
+        else if(this.cursors.right.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.D))      //if right arrow is down
             this.player.body.velocity.x = 250;  //move right
     
         else                                    //if no key is down
@@ -109,10 +119,22 @@ Game.prototype = {
         
  
         //  Allow the player to jump if they are touching the ground.
-        if (this.cursors.up.isDown && this.player.body.touching.down)
+        //  ADDed something like wall jump but not correct walljump, sorta fun tho
+        if ((this.cursors.up.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.W)) && (this.player.body.touching.down || this.player.body.touching.left || this.player.body.touching.right))
             this.player.body.velocity.y = -350;
-        
 
+        //PLAYER BULLETS
+        if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
+            this.fire();
+
+    },
+
+    fire: function() 
+    {
+        
+        this.player.body.velocity.y = -350;
+       
     }
+
 
 };
