@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>A Game</title>
+	<script src="js/phaser.js"></script>
+	<script src="js/Game.js"></script>
+</head>
+<body>
+
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+ 
+var theGame = null;
+
+function preload() {
+
+    theGame = new Game(game);
+    theGame.preload();
+   
+}
+
+
+
+function create() {
+
+  
+ 
+   theGame.create();
+
+}
+
+function update() {
+
+   theGame.update();
+
+}
+
+
+</script>
+
+</body>
+</html>
