@@ -151,7 +151,7 @@ Game.prototype = {
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             this.fire();
         //collision detection for bullets
-        this.game.physics.arcade.overlap(this.bulletPool, this.mob, this.mobHit, null, this);
+        this.game.physics.arcade.overlap(this.mob, this.bulletPool, this.mobHit, null, this);
 
     },
 
@@ -189,9 +189,9 @@ Game.prototype = {
 
     },
 
-    mobHit: function(bullet)
+    mobHit: function(mob, bullet)       //will be called from overlap, overlap does sprite vs group, not gropu vs sprite
     {
-        bullet.kill();
+       bullet.kill();
     },
 
     render: function()
