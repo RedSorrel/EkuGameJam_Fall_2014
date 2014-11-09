@@ -14,6 +14,8 @@ GameReFactor = function (game) {
    this.PLAYER_GRAVITY_Y = 2000;
    this.PLAYER_MAX_VELOCITY_Y = 350;
    this.jumpCount = 100;
+   this.BULLET_DAMAGE = 5;
+   this.mobHealth = 10;
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 
@@ -27,7 +29,7 @@ GameReFactor.prototype = {
          this.game.load.image('borders','assets/border.png');
          this.game.load.image('border_Side', 'assets/border_Side.png');
          this.game.load.spritesheet('player', 'assets/player.png', 48, 48);
-         this.game.load.spritesheet('mob', 'assets/mob.png', 94,94);
+         this.game.load.spritesheet('mob', 'assets/mob2.png', 94,94);
          this.game.load.image('bullets', 'assets/bullet.png');
     },
 
@@ -93,6 +95,15 @@ GameReFactor.prototype = {
     mobHit: function(mob, bullet)       //will be called from overlap, overlap does sprite vs group, not gropu vs sprite
     {
        bullet.kill();
+       this.damageEnemy(mob, this.BULLET_DAMAGE);
+       
+
+    },
+
+    damageEnemy: function(mob, damage)
+    {
+        //enemy.damage(damage);
+        mob.play('hit');
 
     },
 
@@ -163,6 +174,17 @@ GameReFactor.prototype = {
         //MOB*****************************************************************
         this.mob = game.add.sprite(game.world.width-(96*2), game.world.height-(96*2), 'mob');
         this.game.physics.arcade.enable(this.mob);
+       
+        this.mob.animations.add('walk',[0], 20, true);
+        this.mob.animations.add('hit', [1, 0, 1], 20, false);
+        
+        this.mob.events.onAnimationComplete.add(
+            function (e)
+            {
+                e.play('walk');
+            },this);
+
+           
         this.mob.body.gravity.y = 1000;
         this.mob.body.maxVelocity.x = 100;
         this.mob.body.maxVelocity.y = 500;
@@ -215,6 +237,7 @@ GameReFactor.prototype = {
       // this.mob.body.bounce.x = 1;
       //this.mob.body.velocity.x -= 10;
       //Follows Player
+      //this.mob.play('walk');
       if((this.mob.body.x - this.player.body.x > 0))
         this.mob.body.velocity.x -= 10;
       else if((this.mob.body.x - this.player.body.x <0))
