@@ -1,5 +1,5 @@
-
-Game = function (game) {
+var BasicGame = {};
+BasicGame.Game = function (game) {
 
     //  When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
 
@@ -14,7 +14,7 @@ Game = function (game) {
 
 };
 
-Game.prototype = {
+BasicGame.Game.prototype = {
 
     preload: function()
     {
@@ -74,7 +74,7 @@ Game.prototype = {
         //PLAYER BULLETS/PROJECTILES
         
         //add an empty sprite group into our game
-        this.bulletPool = game.add.group();
+        this.bulletPool = this.game.add.group();
 
         //enable physics to the whole sprite group
         this.bulletPool.enableBody = true;
@@ -124,17 +124,17 @@ Game.prototype = {
         this.game.physics.arcade.collide(this.player, this.mob);
 
         //Get player movement
-        var pV = 10;                            //velocity of the player, create some slide when we let off the keys
+        var pV = 10;                                    //velocity of the player, create some slide when we let off the keys
         if(this.cursors.left.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.A))            //if left arrow is down
-            this.player.body.velocity.x = -250; //move left
+            this.player.body.velocity.x = -250;         //move left
         
         else if(this.cursors.right.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.D))      //if right arrow is down
-            this.player.body.velocity.x = 250;  //move right
+            this.player.body.velocity.x = 250;          //move right
     
-        else                                    //if no key is down
+        else                                            //if no key is down
         {
             if(this.player.body.velocity.x >0)
-                this.player.body.velocity.x -= pV;    //dont move
+                this.player.body.velocity.x -= pV;       //dont move, but if we have some velocity, slide in that direction some
             else if(this.player.body.velocity.x < 0)
                 this.player.body.velocity.x += pV;
             else
@@ -150,6 +150,7 @@ Game.prototype = {
         //PLAYER BULLETS
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             this.fire();
+
         //collision detection for bullets
         this.game.physics.arcade.overlap(this.bulletPool, this.mob, this.mobHit, null, this);
 
@@ -192,6 +193,7 @@ Game.prototype = {
     mobHit: function(bullet)
     {
         bullet.kill();
+
     },
 
     render: function()
