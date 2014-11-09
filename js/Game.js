@@ -9,6 +9,7 @@ Game = function (game) {
    this.cursors = null;         //gonna get key input
    this.mob = null;             //mob thinger
    this.bullets = null;
+   this.bulletPool = null;
 
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
@@ -38,7 +39,7 @@ Game.prototype = {
         this.game.add.sprite(0, 0, 'sky');
 
         //Let's create the stage, a bottom, top, leftside and rightside
-        this.borders = game.add.group();
+        this.borders = this.game.add.group();
 
         var bottom = this.borders.create(0, this.game.world.height-42, 'borders');
 
@@ -72,12 +73,36 @@ Game.prototype = {
         this.player.body.maxVelocity.y = 500;
         this.player.body.collideWorldBounds = true;
 
-        //PLAYER BULLETS/PROJECTILES
+        //PLAYER BULLETS/PROJECTILES******************************************
         
-        this.bullets = [];
+        //this.bullets = [];
+        //Add an empty sprite group into the game
+        this.bulletPool = this.game.add.group();
+
+        //enable phys on this sprite group
+        this.game.physics.arcade.enable(this.bulletPool);
+
+        //add 100 bullet sprites to the group
+        //by default this uses the first frame of the sprite sheets
+        //and sets the initial state as non-existing (i.e. killed/dead)
+        this.bulletPool.createMultiple(100, 'bullet');
+
+        //Sets anchors of all sprites
+        this.bulletPool.setAll('anchor.x', 0.5);
+        this.bulletPool.setAll('anchor.y', 0.5);
+
+        //Automatically kill the bullet sprites when the go out of bounds
+        this.bulletPool.setAll('outOfBoundsKill', true);
+        this.bulletPool.setAll('checkWorldBounds', true);
+
+        this.nextShotAt = 0;
+        this.shotDelay = 100;
+
+
+
         
 
-        //MOB*****************************************************************
+        //MOB*********************************************************************
         this.mob = game.add.sprite(game.world.width-(96*2), game.world.height-(96*2), 'mob');
         this.game.physics.arcade.enable(this.mob);
         this.mob.body.gravity.y = 1000;
@@ -140,11 +165,23 @@ Game.prototype = {
 
     fire: function() 
     {
-        var bullet = this.game.add.sprite(this.player.x, this.player.y - 20, 'bullet');
-        bullet.anchor.setTo(0.5, 0.5);
-        this.game.physics.arcade.enable(bullet);
-        bullet.body.velocity.x = 500;
-        this.bullets.push(bullet);
+        if (this.nextShotAt > this.time.now) {
+      return;
+        }
+
+        if (this.bulletPool.countDead() === 0) {
+          return;
+        }
+
+         this.nextShotAt = this.time.now + this.shotDelay;
+            // Find the first dead bullet in the pool
+        var bullet = this.bulletPool.getFirstExists(false);
+
+        // Reset (revive) the sprite and place it in a new location
+        bullet.reset(this.player.x, this.player.y - 20);
+
+        bullet.body.velocity.y = -500;
+
     },
 
     mobHit: function(bullet)
