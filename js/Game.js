@@ -96,7 +96,7 @@ Game.prototype = {
 
 
         this.nextShotAt = 0;
-        this.shotDelay = 100;
+        this.shotDelay = 250;
         
 
         //MOB*****************************************************************
@@ -192,6 +192,7 @@ Game.prototype = {
     mobHit: function(mob, bullet)       //will be called from overlap, overlap does sprite vs group, not gropu vs sprite
     {
        bullet.kill();
+
     },
 
     render: function()
