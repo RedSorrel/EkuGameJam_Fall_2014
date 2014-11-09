@@ -159,15 +159,12 @@ Game.prototype = {
     fire: function() 
     {
 
-        if(this.nextShotAt > this.game.time.now) {
+        if(this.nextShotAt > this.game.time.now)
             return;
-        }
         
 
         if(this.bulletPool.countDead() === 0)
-        {
             return;
-        }
 
         this.nextShotAt = this.game.time.now + this.shotDelay; //make the bullets fire not as quickly
 
@@ -177,7 +174,18 @@ Game.prototype = {
         //Reset (revive) the sprite and place it in a new location
         bullet.reset(this.player.x, this.player.y - 20);
 
-        bullet.body.velocity.x = 500;
+
+        //if the player is moving while shooting:
+        //Probably change this once i get left and right animation/sprites for the player
+        if(this.cursors.left.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.A))            //if left arrow is down
+            bullet.body.velocity.x = -500;                                                            //shoot left
+        
+        else if(this.cursors.right.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.D))      //if right arrow is down
+            bullet.body.velocity.x = 500;                                                             //shoot right
+        else
+            bullet.body.velocity.y = -500;
+    
+        
 
     },
 
