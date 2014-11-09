@@ -15,7 +15,14 @@ GameReFactor = function (game) {
    this.PLAYER_MAX_VELOCITY_Y = 350;
    this.jumpCount = 100;
    this.BULLET_DAMAGE = 5;
-   this.mobHealth = 10;
+   this.mobHealth = 60;
+   this.playerHealth = 100;
+   this.mobDamage = 10;
+
+   //MOB VARS
+   this.mob_velocity_x = 10;
+   this.mob_velocity_y = 350;
+
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 
@@ -28,7 +35,7 @@ GameReFactor.prototype = {
          this.game.load.image('sky', 'assets/sky.png');
          this.game.load.image('borders','assets/border.png');
          this.game.load.image('border_Side', 'assets/border_Side.png');
-         this.game.load.spritesheet('player', 'assets/player.png', 48, 48);
+         this.game.load.spritesheet('player', 'assets/player2.png', 48, 48);
          this.game.load.spritesheet('mob', 'assets/mob2.png', 94,94);
          this.game.load.image('bullets', 'assets/bullet.png');
     },
@@ -86,7 +93,7 @@ GameReFactor.prototype = {
         else if(this.cursors.right.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.D))      //if right arrow is down
             bullet.body.velocity.x = 500;                                                             //shoot right
         else
-            bullet.body.velocity.y = -500;
+            bullet.body.velocity.y = 500;
     
         
 
@@ -102,14 +109,35 @@ GameReFactor.prototype = {
 
     damageEnemy: function(mob, damage)
     {
-        //enemy.damage(damage);
-        mob.play('hit');
+        this.mobHealth -= this.BULLET_DAMAGE;
+        if(this.mobHealth < 60)
+            {
+                this.mob_velocity_x = 200;
+                this.mob_velocity_y = this.game.world.height/2;
+            }
+        else fi(this.mobHealth < 20)
+        {
+            this.mob_velocity_x = 600;
+            this.mob_velocity_y = this.game.world.height;
+        }
 
+       if(this.mobHealth >0)
+             mob.play('hit');
+         else
+            {
+                mob.kill();
+                this.displayEnd(true);
+            }
+
+        
     },
 
-    playerHit: function(player, enemy)
+    playerHit: function(player)
     {
-       // player.kill();
+       //this.playerHealth -= this.mobDamage;
+       player.kill();
+       this.displayEnd(false);
+        
 
     },
 
@@ -167,6 +195,14 @@ GameReFactor.prototype = {
         this.player.body.collideWorldBounds = true;
         this.player.anchor.setTo(0.5, 0.5);
 
+        this.player.animations.add('walk', [0], 20, true);
+        this.player.animations.add('hit', [1,0,1], 20, false);
+
+        this.player.events.onAnimationComplete.add(
+            function (e)
+            {
+                e.play('walk');
+            },this);
     },
 
     setupEnemies: function ()
@@ -176,6 +212,7 @@ GameReFactor.prototype = {
         this.game.physics.arcade.enable(this.mob);
        
         this.mob.animations.add('walk',[0], 20, true);
+        //hit animation sprites
         this.mob.animations.add('hit', [1, 0, 1], 20, false);
         
         this.mob.events.onAnimationComplete.add(
@@ -187,12 +224,13 @@ GameReFactor.prototype = {
            
         this.mob.body.gravity.y = 1000;
         this.mob.body.maxVelocity.x = 100;
-        this.mob.body.maxVelocity.y = 500;
+        //this.mob.body.maxVelocity.y = 500;
         this.mob.body.collideWorldBounds = true;
         this.mob.anchor.setTo(0.5, 0.5);
+      
 
 
-        //hit animation sprites
+        
     },
 
     setupBullets: function()
@@ -238,17 +276,20 @@ GameReFactor.prototype = {
       //this.mob.body.velocity.x -= 10;
       //Follows Player
       //this.mob.play('walk');
+      if(this.playerHealth <= 0)
+        this.mob.body.velocity.x = 0;
+
       if((this.mob.body.x - this.player.body.x > 0))
-        this.mob.body.velocity.x -= 10;
+        this.mob.body.velocity.x -= this.mob_velocity_x;
       else if((this.mob.body.x - this.player.body.x <0))
-        this.mob.body.velocity.x += 10;
+        this.mob.body.velocity.x += this.mob_velocity_x;
 
         //if the player scales the wall, make the mob jump
         
        
             if(this.jumpCount === 500)
             {
-                this.mob.body.velocity.y -= 350;
+                this.mob.body.velocity.y -= this.mob_velocity_y;
                 
             }
             this.jumpCount--;
@@ -266,7 +307,7 @@ GameReFactor.prototype = {
     processPlayerInput: function()
     {
         //Get player movement
-        
+        this.player.play('walk');
         if(this.cursors.left.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.A))            //if left arrow is down
             this.player.body.velocity.x = -this.PLAYER_VELOCITY_X; //move left
         
@@ -301,10 +342,32 @@ GameReFactor.prototype = {
         //PLAYER BULLETS
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             this.fire();
-    }
+    },
 
+    processDelayedEffects: function()
+    {
+        if(this.showReturn && this.game.time.now > this.showReturn)
+        {
+            this.returnText = this.game.add.text(
+                this.game.width/2, this.game.height/2 + 20, 
+                'Press Z to go back to Main Menu', {font: '16px san-serif', fill: '#fff'});
+            this.returnText.anchor.setTo(0.5, 0.5);
+            this.showReturn = false;
+        }
+    },
 
+    displayEnd: function(win)
+    {
+        //can't win and lose at the same time
+        if(this.endText && this.endText.exists)
+        {
+            return;
+        }
 
-
-
+        var msg = win ? 'You Win!!!\n Press F5 to restart' : 'Game Over!\n Press F5 to restart';
+        this.endText = this.game.add.text(
+        this.game.width/2, this.game.height/2 - 60, msg, {font: '62px serif', fill: '#fff'});
+        this.endText.anchor.setTo(0.5, 0);
+        this.showReturn = this.game.time.now + this.game.RETURN_MESSAGE_DELAY;
+    },
 };
