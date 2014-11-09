@@ -5,6 +5,7 @@
 	<title>A Game</title>
 	<script src="js/phaser.js"></script>
 	<script src="js/Game.js"></script>
+	<script src="js/GameReFactor.js"></script>
 </head>
 <body>
 
@@ -18,7 +19,10 @@ var theGame = null;
 
 function preload() {
 
-    theGame = new Game(game);
+   // theGame = new Game(game);
+   // theGame.preload();
+
+    theGame = new GameReFactor(game);
     theGame.preload();
    
 }

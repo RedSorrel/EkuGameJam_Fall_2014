@@ -1,5 +1,5 @@
 
-Game = function (game) {
+GameReFactor = function (game) {
 
     //  When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
 
@@ -14,7 +14,7 @@ Game = function (game) {
 
 };
 
-Game.prototype = {
+GameReFactor.prototype = {
 
     preload: function()
     {
@@ -30,84 +30,14 @@ Game.prototype = {
 
     create: function () 
     {
-        //lets get keyboard input
-        this.cursors = this.game.input.keyboard.createCursorKeys();
-
-        //create the backdrop, a beautiful sky
-        this.game.add.sprite(0, 0, 'sky');
-
-        //Let's create the stage, a bottom, top, leftside and rightside
-        this.borders = game.add.group();
-
-        var bottom = this.borders.create(0, this.game.world.height-42, 'borders');
-
-        this.game.physics.arcade.enable(bottom);                //IMPORTANT NEED THIS OR IMMOBVABLE WILL CAUSE THE GAME TO BREAK
-
-        bottom.scale.setTo(2,1);        //scale it to fid the width of the game
-
-        //stop from falling away when you jump on it
-        bottom.body.immovable = true;
-
-        var top = this.borders.create(0,0, 'borders');
-        this.game.physics.arcade.enable(top);
-        top.scale.setTo(2,1);
-        top.body.immovable = true;
-
-        var leftSide = this.borders.create(0,0, 'border_Side');
-        this.game.physics.arcade.enable(leftSide);
-        leftSide.scale.setTo(1,2);
-        leftSide.body.immovable = true;
-
-        var rightSide = this.borders.create(this.game.world.width-40,0, 'border_Side');
-        this.game.physics.arcade.enable(rightSide);
-        rightSide.scale.setTo(2,2);
-        rightSide.body.immovable = true;
-
-        //PLAYER***************************************************************
-        //create the player obj
-        this.player = game.add.sprite(48, game.world.height - 150, 'player');
-        this.game.physics.arcade.enable(this.player);
-        this.player.body.gravity.y = 1000;
-        this.player.body.maxVelocity.y = 500;
-        this.player.body.collideWorldBounds = true;
-
-        //PLAYER BULLETS/PROJECTILES
         
-        //add an empty sprite group into our game
-        this.bulletPool = game.add.group();
+        this.setupBackground();
+        this.setupPlayer();
+        this.setupEnemies();
+        this.setupBullets();
+        this.setupExplosions();
 
-        //enable physics to the whole sprite group
-        this.bulletPool.enableBody = true;
-        this.bulletPool.physicsBodyType = Phaser.Physics.ARCADE;
-        
-
-        //Add 100 'bullet' sprites in the group
-        //by default this uses the first frame of the sprite sheet and
-        //sets the initial state as non-existing(i.e. killed/dead)
-        this.bulletPool.createMultiple(100, 'bullets');
-
-        //set anchors for all sprites
-        this.bulletPool.setAll('anchor.x', 0.5);
-        this.bulletPool.setAll('anchor.y', 0.5);
-
-        //automatically kill the bullet sprites when they go out of bounds
-        this.bulletPool.setAll('outOfBoundsKill', true);
-        this.bulletPool.setAll('checkWorldBounds', true);
-
-
-        this.nextShotAt = 0;
-        this.shotDelay = 250;
-        
-
-        //MOB*****************************************************************
-        this.mob = game.add.sprite(game.world.width-(96*2), game.world.height-(96*2), 'mob');
-        this.game.physics.arcade.enable(this.mob);
-        this.mob.body.gravity.y = 1000;
-        this.mob.body.collideWorldBounds = true;
-        this.mob.anchor.setTo(0.5, 0.5);
-
-        //MOB AI?
-
+        this.cursors = this.input.keyboard.createCursorKeys();
 
     },
 
@@ -208,7 +138,24 @@ Game.prototype = {
        // this.game.debug.body(this.player);
        // this.game.debug.body(this.mob);
        // this.game.debug.body(this.bullets);
-    }
+    },
+
+    setupBackground: function() 
+    {
+        this.sky = this.game.add.sprite(0, 0, 'sky');
+    },
+
+    setUpPlayer: function ()
+    {
+        this.player = this.game.add.sprite(48, game.world.height - 150, 'player');
+        this.player.anchor.setTo(0.5, 0.5);
+        this.game.physics.arcade.enable(this.player);
+        this.player.speed = 300;
+        this.player.body.collideWorldBounds = true;
+
+    },
+
+
 
 
 };
