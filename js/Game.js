@@ -73,6 +73,7 @@ Game.prototype = {
         this.player.body.maxVelocity.y = 500;
         this.player.body.collideWorldBounds = true;
 
+<<<<<<< HEAD
         //PLAYER BULLETS/PROJECTILES******************************************
         
         //this.bullets = [];
@@ -100,6 +101,11 @@ Game.prototype = {
 
 
 
+=======
+        //PLAYER BULLETS/PROJECTILES
+        this.bullets = game.add.group();
+        this.bullets = [];
+>>>>>>> parent of 0be5ac8... Bullets now disappear when enemy is hit
         
 
         //MOB*********************************************************************
@@ -107,7 +113,6 @@ Game.prototype = {
         this.game.physics.arcade.enable(this.mob);
         this.mob.body.gravity.y = 1000;
         this.mob.body.collideWorldBounds = true;
-        this.mob.anchor.setTo(0.5, 0.5);
 
 
     },
@@ -153,18 +158,12 @@ Game.prototype = {
         //PLAYER BULLETS
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             this.fire();
-        //collision detection for bullets
-        for(var i = 0; i < this.bullets.length; i++)
-        {
-                this.game.physics.arcade.overlap(this.bullets[i], this.mob, this.mobHit, null, this);
-
-        }
 
     },
 
-
     fire: function() 
     {
+<<<<<<< HEAD
         if (this.nextShotAt > this.time.now) {
       return;
         }
@@ -194,6 +193,13 @@ Game.prototype = {
        // this.game.debug.body(this.player);
        // this.game.debug.body(this.mob);
        // this.game.debug.body(this.bullets);
+=======
+        var bullet = this.game.add.sprite(this.player.x, this.player.y -20, 'bullet');
+        bullet.anchor.setTo(0.5, 0.5);
+        this.game.physics.arcade.enable(bullet);
+        bullet.body.velocity.x = 500;
+        this.bullets.push(this.bullets);
+>>>>>>> parent of 0be5ac8... Bullets now disappear when enemy is hit
     }
 
 
