@@ -75,6 +75,8 @@ Game.prototype = {
         //PLAYER BULLETS/PROJECTILES
         
         this.bullets = [];
+        this.nextShotAt = 0;
+        this.shotDelay = 100;
         
 
         //MOB*****************************************************************
@@ -140,11 +142,18 @@ Game.prototype = {
 
     fire: function() 
     {
-        var bullet = this.game.add.sprite(this.player.x, this.player.y - 20, 'bullet');
+
+        if(this.nextShotAt > this.game.time.now) {
+            return;
+        }
+        this.nextShotAt = this.game.time.now + this.shotDelay;
+
+        var bullet = this.game.add.sprite(this.player.x, this.player.y - 20, 'bullets');
         bullet.anchor.setTo(0.5, 0.5);
         this.game.physics.arcade.enable(bullet);
         bullet.body.velocity.x = 500;
         this.bullets.push(bullet);
+
     },
 
     mobHit: function(bullet)
