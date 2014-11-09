@@ -151,7 +151,7 @@ Game.prototype = {
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             this.fire();
         //collision detection for bullets
-        this.game.physics.arcade.overlap(this.mob, this.bulletPool, this.mobHit, null, this);
+        this.game.physics.arcade.overlap(this.mob, this.bulletPool, this.mobHit, null, this); //sprite vs group, not group vs sprite in overlap
 
     },
 
