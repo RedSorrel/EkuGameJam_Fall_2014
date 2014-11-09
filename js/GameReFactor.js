@@ -10,9 +10,10 @@ GameReFactor = function (game) {
    this.mob = null;             //mob thinger
    this.PLAYER_SLIDE = 10;
    this.PLAYER_VELOCITY_X = 250;
-   this.PLAYER_VELOCITY_Y = -1000;
- 
-
+   this.PLAYER_VELOCITY_Y = -350;
+   this.PLAYER_GRAVITY_Y = 2000;
+   this.PLAYER_MAX_VELOCITY_Y = 350;
+   this.jumpCount = 100;
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 
@@ -50,7 +51,7 @@ GameReFactor.prototype = {
     update: function () 
     {
        this.checkCollisions();
-       //this.spawnEnemies();
+       this.moveMob();
        this.processPlayerInput();
        //this.processDelayedEffects();
     },
@@ -97,7 +98,7 @@ GameReFactor.prototype = {
 
     playerHit: function(player, enemy)
     {
-        player.kill();
+       // player.kill();
 
     },
 
@@ -150,8 +151,8 @@ GameReFactor.prototype = {
          //create the player obj
         this.player = game.add.sprite(game.world.width/2 -300, game.world.height - 150, 'player');
         this.game.physics.arcade.enable(this.player);
-        this.player.body.gravity.y = 2000;
-        this.player.body.maxVelocity.y = 350;
+        this.player.body.gravity.y = this.PLAYER_GRAVITY_Y;
+        this.player.body.maxVelocity.y = this.PLAYER_MAX_VELOCITY_Y;
         this.player.body.collideWorldBounds = true;
         this.player.anchor.setTo(0.5, 0.5);
 
@@ -163,8 +164,13 @@ GameReFactor.prototype = {
         this.mob = game.add.sprite(game.world.width-(96*2), game.world.height-(96*2), 'mob');
         this.game.physics.arcade.enable(this.mob);
         this.mob.body.gravity.y = 1000;
+        this.mob.body.maxVelocity.x = 100;
+        this.mob.body.maxVelocity.y = 500;
         this.mob.body.collideWorldBounds = true;
         this.mob.anchor.setTo(0.5, 0.5);
+
+
+        //hit animation sprites
     },
 
     setupBullets: function()
@@ -203,10 +209,33 @@ GameReFactor.prototype = {
         this.game.physics.arcade.collide(this.mob, this.borders);
     },
 
-    spawnEnemies: function() 
+    moveMob: function() 
     {
-        var enemy;
+       //this.mob.body.velocity.x -= 10;
+      // this.mob.body.bounce.x = 1;
+      //this.mob.body.velocity.x -= 10;
+      //Follows Player
+      if((this.mob.body.x - this.player.body.x > 0))
+        this.mob.body.velocity.x -= 10;
+      else if((this.mob.body.x - this.player.body.x <0))
+        this.mob.body.velocity.x += 10;
 
+        //if the player scales the wall, make the mob jump
+        
+       
+            if(this.jumpCount === 500)
+            {
+                this.mob.body.velocity.y -= 350;
+                
+            }
+            this.jumpCount--;
+
+            if(this.jumpCount ===0)
+                this.jumpCount = 500;
+
+
+
+       
            // enemy.play('fly');
 
     },
@@ -214,19 +243,19 @@ GameReFactor.prototype = {
     processPlayerInput: function()
     {
         //Get player movement
-        var pV = 10;                            //velocity of the player, create some slide when we let off the keys
+        
         if(this.cursors.left.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.A))            //if left arrow is down
-            this.player.body.velocity.x = -250; //move left
+            this.player.body.velocity.x = -this.PLAYER_VELOCITY_X; //move left
         
         else if(this.cursors.right.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.D))      //if right arrow is down
-            this.player.body.velocity.x = 250;  //move right
+            this.player.body.velocity.x = this.PLAYER_VELOCITY_X;  //move right
     
-        else                                    //if no key is down
+        else                                                        //if no key is down
         {
-            if(this.player.body.velocity.x >0)
-                this.player.body.velocity.x -= pV;    //dont move
+            if(this.player.body.velocity.x >0)                      //dont move
+                this.player.body.velocity.x -= this.PLAYER_SLIDE;   //if we have some velocity, slide to a stop 
             else if(this.player.body.velocity.x < 0)
-                this.player.body.velocity.x += pV;
+                this.player.body.velocity.x += this.PLAYER_SLIDE;
             else
                 this.player.body.velocity.x = 0;
         }
@@ -235,7 +264,7 @@ GameReFactor.prototype = {
         //  Allow the player to jump if they are touching the ground.
         //  ADDed something like wall jump but not correct walljump, sorta fun tho
         if ((this.cursors.up.isDown || this.game.input.keyboard.isDown(Phaser.Keyboard.W)) && (this.player.body.touching.down || this.player.body.touching.left || this.player.body.touching.right))
-            this.player.body.velocity.y = -350;
+            this.player.body.velocity.y = -this.PLAYER_VELOCITY_Y;
 
         //PLAYER BULLETS
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
