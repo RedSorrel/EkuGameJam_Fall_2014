@@ -8,7 +8,6 @@ Game = function (game) {
    this.borders = null;         //stage cage
    this.cursors = null;         //gonna get key input
    this.mob = null;             //mob thinger
-   this.bullets = null;
 
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
@@ -74,7 +73,28 @@ Game.prototype = {
 
         //PLAYER BULLETS/PROJECTILES
         
-        this.bullets = [];
+        //add an empty sprite group into our game
+        this.bulletPool = game.add.group();
+
+        //enable physics to the whole sprite group
+        this.bulletPool.enableBody = true;
+        this.bulletPool.physicsBodyType = Phaser.Physics.ARCADE;
+        
+
+        //Add 100 'bullet' sprites in the group
+        //by default this uses the first frame of the sprite sheet and
+        //sets the initial state as non-existing(i.e. killed/dead)
+        this.bulletPool.createMultiple(100, 'bullets');
+
+        //set anchors for all sprites
+        this.bulletPool.setAll('anchor.x', 0.5);
+        this.bulletPool.setAll('anchor.y', 0.5);
+
+        //automatically kill the bullet sprites when they go out of bounds
+        this.bulletPool.setAll('outOfBoundsKill', true);
+        this.bulletPool.setAll('checkWorldBounds', true);
+
+
         this.nextShotAt = 0;
         this.shotDelay = 100;
         
@@ -131,11 +151,7 @@ Game.prototype = {
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             this.fire();
         //collision detection for bullets
-        for(var i = 0; i < this.bullets.length; i++)
-        {
-                this.game.physics.arcade.overlap(this.bullets[i], this.mob, this.mobHit, null, this);
-
-        }
+        this.game.physics.arcade.overlap(this.bulletPool, this.mob, this.mobHit, null, this);
 
     },
 
@@ -146,13 +162,22 @@ Game.prototype = {
         if(this.nextShotAt > this.game.time.now) {
             return;
         }
-        this.nextShotAt = this.game.time.now + this.shotDelay;
+        
 
-        var bullet = this.game.add.sprite(this.player.x, this.player.y - 20, 'bullets');
-        bullet.anchor.setTo(0.5, 0.5);
-        this.game.physics.arcade.enable(bullet);
+        if(this.bulletPool.countDead() === 0)
+        {
+            return;
+        }
+
+        this.nextShotAt = this.game.time.now + this.shotDelay; //make the bullets fire not as quickly
+
+        //Find the first dead bullet in the pool
+        var bullet = this.bulletPool.getFirstExists(false);
+
+        //Reset (revive) the sprite and place it in a new location
+        bullet.reset(this.player.x, this.player.y - 20);
+
         bullet.body.velocity.x = 500;
-        this.bullets.push(bullet);
 
     },
 
